@@ -66,7 +66,7 @@ This project aims to demonstrate how AI can move beyond prediction into **decisi
 
 ## 🔗 Live Application
 
-()
+(https://global-crisis-ai-nikzvu2ky3d4hu2njn7ltn.streamlit.app/)
 
 ---
 

@@ -1,110 +1,105 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from model import train_model
-from simulation import simulate_crisis, recommend_strategy
+from simulation import simulate_crisis, compare_strategies, explain_ai
 
 st.set_page_config(page_title="Global Crisis AI", layout="wide")
 
-# -------------------------
-# LOAD DATA
-# -------------------------
 data = pd.read_csv("data.csv")
-model = train_model()
 
-# -------------------------
-# SIDEBAR NAVIGATION
-# -------------------------
+# SIDEBAR
 st.sidebar.title("🌍 Global Crisis AI")
-page = st.sidebar.radio("Navigate", ["Dashboard", "Simulation Lab", "Insights"])
+page = st.sidebar.radio("Navigation", ["Global Dashboard", "Simulation Lab", "Strategy Engine"])
 
-# -------------------------
-# DASHBOARD
-# -------------------------
-if page == "Dashboard":
+# ---------------- DASHBOARD ----------------
+if page == "Global Dashboard":
 
-    st.title("🌍 Global Crisis Overview")
-    st.markdown("### Real-time inspired simulation of global crisis conditions")
+    st.title("🌍 Global Crisis Intelligence System")
+    st.markdown("### Monitoring high-risk regions and humanitarian stress levels")
 
-    st.image("https://images.unsplash.com/photo-1509099836639-18ba1795216d", use_container_width=True)
+    st.image("https://images.unsplash.com/photo-1521295121783-8a321d551ad2", use_container_width=True)
 
-    st.markdown("## 🌐 Regions at Risk")
+    st.markdown("## 🚨 High Risk Countries")
 
-    cols = st.columns(3)
+    high_risk = data.sort_values(by="crisis_severity", ascending=False).head(5)
 
-    for i, row in data.iterrows():
-        with cols[i % 3]:
-            st.metric(label=row["region"], value=f"Severity {row['crisis_severity']}")
-            st.write(f"Affected: {row['affected_population']}M")
+    cols = st.columns(5)
 
-# -------------------------
-# SIMULATION LAB
-# -------------------------
+    for i, row in high_risk.iterrows():
+        with cols[i % 5]:
+            st.metric(row["country"], f"Severity {row['crisis_severity']}")
+            st.caption(f"Affected: {row['affected_population']}M")
+
+    st.markdown("## 🌐 Crisis Distribution")
+
+    fig, ax = plt.subplots()
+    ax.bar(data["country"], data["crisis_severity"])
+    plt.xticks(rotation=45)
+
+    st.pyplot(fig)
+
+# ---------------- SIMULATION ----------------
 elif page == "Simulation Lab":
 
-    st.title("🧪 Crisis Simulation Lab")
-    st.markdown("Adjust parameters to simulate a real-world crisis scenario.")
+    st.title("🧪 Advanced Crisis Simulation")
 
     col1, col2 = st.columns(2)
 
     with col1:
-        population = st.slider("Population (millions)", 100, 2000, 500)
-        severity = st.slider("Crisis Severity", 1, 10, 5)
+        population = st.slider("Population (millions)", 10, 1500, 300)
+        severity = st.slider("Crisis Severity", 1, 10, 6)
 
     with col2:
-        food = st.slider("Food Supply (%)", 0, 100, 70)
-        water = st.slider("Water Supply (%)", 0, 100, 70)
-        energy = st.slider("Energy Supply (%)", 0, 100, 70)
+        food = st.slider("Food Supply (%)", 0, 100, 50)
+        water = st.slider("Water Supply (%)", 0, 100, 50)
+        energy = st.slider("Energy Supply (%)", 0, 100, 50)
 
-    st.markdown("---")
-
-    if st.button("🚀 Run Advanced Simulation"):
+    if st.button("Run Simulation"):
 
         risk, affected = simulate_crisis(population, food, water, energy, severity)
-        prediction = model.predict([[population, food, water, energy, severity]])[0]
-        strategies = recommend_strategy(food, water, energy)
 
-        st.subheader("📊 Simulation Results")
+        st.subheader("📊 Results")
 
-        col1, col2, col3 = st.columns(3)
+        c1, c2 = st.columns(2)
+        c1.metric("Risk Score", risk)
+        c2.metric("Affected Population", f"{affected}M")
 
-        col1.metric("Risk Score", risk)
-        col2.metric("Simulated Affected", f"{affected}M")
-        col3.metric("AI Prediction", f"{int(prediction)}M")
-
-        # Graph
-        st.subheader("📈 Impact Visualization")
-
-        labels = ["Food", "Water", "Energy"]
-        values = [food, water, energy]
+        st.subheader("📈 Resource Breakdown")
 
         fig, ax = plt.subplots()
-        ax.bar(labels, values)
-        ax.set_ylabel("Supply %")
-
+        ax.bar(["Food", "Water", "Energy"], [food, water, energy])
         st.pyplot(fig)
 
-# -------------------------
-# INSIGHTS
-# -------------------------
-elif page == "Insights":
+        st.subheader("🧠 AI Explanation")
 
-    st.title("🧠 AI Strategy Insights")
+        explanations = explain_ai(food, water, energy)
 
-    st.markdown("This section explains how AI recommends crisis response strategies.")
+        for e in explanations:
+            st.info(e)
 
-    food = st.slider("Food Supply", 0, 100, 50)
-    water = st.slider("Water Supply", 0, 100, 50)
-    energy = st.slider("Energy Supply", 0, 100, 50)
+# ---------------- STRATEGY ----------------
+elif page == "Strategy Engine":
 
-    strategies = recommend_strategy(food, water, energy)
+    st.title("⚖️ Strategy Comparison Engine")
 
-    st.subheader("📌 Recommended Actions")
+    population = st.slider("Population", 10, 1500, 300)
+    severity = st.slider("Severity", 1, 10, 6)
+    food = st.slider("Food", 0, 100, 40)
+    water = st.slider("Water", 0, 100, 40)
+    energy = st.slider("Energy", 0, 100, 40)
 
-    for s in strategies:
-        st.success(s)
+    results = compare_strategies(population, food, water, energy, severity)
 
-    st.markdown("## ⚖️ Decision Impact")
-    st.write(
-        "AI evaluates trade-offs between resource allocation strategies to maximize lives saved."
-    )
+    st.subheader("📊 Strategy Outcomes")
+
+    st.write(results)
+
+    fig, ax = plt.subplots()
+    ax.bar(results.keys(), results.values())
+    ax.set_ylabel("Affected Population (millions)")
+
+    st.pyplot(fig)
+
+    best = min(results, key=results.get)
+
+    st.success(f"✅ Best Strategy: {best}")

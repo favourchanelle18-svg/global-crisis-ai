@@ -1,0 +1,7 @@
+region,population,food_supply,water_supply,energy_supply,crisis_severity,affected_population
+Africa,1200,50,40,30,8,800
+South Asia,1800,60,50,40,7,900
+Middle East,400,70,60,80,5,150
+Europe,450,90,85,90,3,50
+North America,500,95,90,95,2,30
+Latin America,650,65,55,60,6,300

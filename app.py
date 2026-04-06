@@ -2,7 +2,20 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from simulation import simulate_crisis, compare_strategies, explain_ai
-
+st.markdown("""
+<style>
+body {
+    background-color: #0e1117;
+}
+.stApp {
+    background: linear-gradient(180deg, #0e1117 0%, #111827 100%);
+    color: white;
+}
+h1, h2, h3 {
+    color: #00ffd5;
+}
+</style>
+""", unsafe_allow_html=True)
 st.set_page_config(page_title="Global Crisis AI", layout="wide")
 
 data = pd.read_csv("data.csv")

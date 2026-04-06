@@ -17,6 +17,15 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 st.set_page_config(page_title="Global Crisis AI", layout="wide")
+st.markdown("## 🗺️ Global Crisis Map")
+
+map_data = pd.DataFrame({
+    "country": ["Nigeria", "India", "Yemen", "Brazil"],
+    "lat": [9.0820, 20.5937, 15.5527, -14.2350],
+    "lon": [8.6753, 78.9629, 48.5164, -51.9253]
+})
+
+st.map(map_data)
 
 data = pd.read_csv("data.csv")
 

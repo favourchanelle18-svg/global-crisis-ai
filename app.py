@@ -53,7 +53,7 @@ def get_severity_badge(severity):
 # Load Dataset safely
 try:
     data = pd.read_csv("data.csv")
-except FileNotFoundError:
+except Exception:
     data = pd.DataFrame({
         "country": ["Nigeria", "India", "Yemen", "Brazil", "Sudan", "Ukraine"],
         "crisis_severity": [8, 6, 9, 4, 9, 8],
@@ -62,6 +62,31 @@ except FileNotFoundError:
         "lat": [9.0820, 20.5937, 15.5527, -14.2350, 12.8628, 48.3794],
         "lon": [8.6753, 78.9629, 48.5164, -51.9253, 30.2176, 31.1656]
     })
+
+# SAFE MAP DATA EXTRACTION FIX
+def get_safe_map_data(df):
+    col_map = {c.lower(): c for c in df.columns}
+    lat_col = col_map.get('lat') or col_map.get('latitude')
+    lon_col = col_map.get('lon') or col_map.get('longitude')
+    
+    if lat_col and lon_col:
+        return df[[lat_col, lon_col]].rename(columns={lat_col: 'latitude', lon_col: 'longitude'}).dropna()
+    else:
+        # Fallback coordinates for key countries if not provided in CSV
+        fallback_coords = {
+            "Nigeria": [9.0820, 8.6753],
+            "India": [20.5937, 78.9629],
+            "Yemen": [15.5527, 48.5164],
+            "Brazil": [-14.2350, -51.9253],
+            "Sudan": [12.8628, 30.2176],
+            "Ukraine": [48.3794, 31.1656]
+        }
+        lats, lons = [], []
+        for country in df.get('country', []):
+            coords = fallback_coords.get(str(country), [0.0, 0.0])
+            lats.append(coords[0])
+            lons.append(coords[1])
+        return pd.DataFrame({'latitude': lats, 'longitude': lons})
 
 # SIDEBAR NAVIGATION
 st.sidebar.markdown("## 🛸 GLOBAL COMMAND")
@@ -86,8 +111,8 @@ if page == "Global Command Atlas":
 
     # Live Stat Counters
     total_crises = len(data)
-    critical_count = len(data[data["crisis_severity"] >= 8])
-    total_affected = data["affected_population"].sum()
+    critical_count = len(data[data["crisis_severity"] >= 8]) if "crisis_severity" in data.columns else 0
+    total_affected = data["affected_population"].sum() if "affected_population" in data.columns else 0
 
     m1, m2, m3 = st.columns(3)
     m1.metric("Active Crisis Zones", f"{total_crises} Regions")
@@ -96,44 +121,52 @@ if page == "Global Command Atlas":
 
     st.markdown("---")
 
-    # Native Streamlit Interactive Map
+    # Native Streamlit Interactive Map (Fixed for missing/differently-named columns)
     st.markdown("### 🗺️ Live Global Stress Map")
-    map_df = data[["lat", "lon"]].rename(columns={"lat": "latitude", "lon": "longitude"}).dropna()
+    map_df = get_safe_map_data(data)
     st.map(map_df, zoom=1)
 
     st.markdown("---")
 
     # High Risk Cards
     st.markdown("### 🚨 Priority Risk Focus Zones")
-    high_risk = data.sort_values(by="crisis_severity", ascending=False).head(4)
+    if "crisis_severity" in data.columns:
+        high_risk = data.sort_values(by="crisis_severity", ascending=False).head(4)
+    else:
+        high_risk = data.head(4)
 
     cols = st.columns(4)
     for idx, (_, row) in enumerate(high_risk.iterrows()):
         with cols[idx % 4]:
+            sev = row.get('crisis_severity', 5)
+            aff = row.get('affected_population', 0)
+            ctry = row.get('country', f'Region {idx+1}')
+            
             st.markdown(f"""
             <div class="card-container">
-                <h4>{row['country']}</h4>
-                {get_severity_badge(row['crisis_severity'])}<br><br>
+                <h4>{ctry}</h4>
+                {get_severity_badge(sev)}<br><br>
                 <small>Impacted Population</small>
-                <h3 style="margin:0; color:#00f2fe;">{row['affected_population']}M</h3>
+                <h3 style="margin:0; color:#00f2fe;">{aff}M</h3>
             </div>
             """, unsafe_allow_html=True)
-            if st.button(f"View {row['country']} Report", key=f"btn_{row['country']}"):
-                st.info(f"📍 **{row['country']} Intelligence Briefing:** Primary threat factor identified as **{row.get('primary_risk', 'General Crisis')}**.")
+            if st.button(f"View {ctry} Report", key=f"btn_{ctry}_{idx}"):
+                st.info(f"📍 **{ctry} Intelligence Briefing:** Primary threat factor identified as **{row.get('primary_risk', 'General Risk')}**.")
 
     # Severity Distribution Chart
-    st.markdown("### 📊 Regional Severity Distribution")
-    fig, ax = plt.subplots(figsize=(10, 3.5))
-    bars = ax.bar(data["country"], data["crisis_severity"], color='#00f2fe', edgecolor='#0072ff', alpha=0.85)
-    
-    for bar, val in zip(bars, data["crisis_severity"]):
-        if val >= 8:
-            bar.set_color('#ef4444')
+    if "crisis_severity" in data.columns and "country" in data.columns:
+        st.markdown("### 📊 Regional Severity Distribution")
+        fig, ax = plt.subplots(figsize=(10, 3.5))
+        bars = ax.bar(data["country"], data["crisis_severity"], color='#00f2fe', edgecolor='#0072ff', alpha=0.85)
+        
+        for bar, val in zip(bars, data["crisis_severity"]):
+            if val >= 8:
+                bar.set_color('#ef4444')
 
-    plt.xticks(rotation=30, ha='right')
-    ax.set_ylabel("Severity Score (1-10)")
-    set_dark_chart_theme(fig, ax)
-    st.pyplot(fig)
+        plt.xticks(rotation=30, ha='right')
+        ax.set_ylabel("Severity Score (1-10)")
+        set_dark_chart_theme(fig, ax)
+        st.pyplot(fig)
 
 # ---------------- 2. SIMULATION LAB ----------------
 elif page == "Simulation Lab":
@@ -188,7 +221,7 @@ elif page == "Simulation Lab":
 # ---------------- 3. STRATEGY ENGINE ----------------
 elif page == "Strategy Engine":
 
-    st.title("秤 STRATEGY OPTIMIZATION ENGINE")
+    st.title("⚖️ STRATEGY OPTIMIZATION ENGINE")
     st.markdown("Evaluate intervention strategies to mitigate human casualty and displacement metrics.")
 
     c1, c2 = st.columns(2)

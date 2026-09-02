@@ -69,8 +69,8 @@ div[data-testid="stMetricValue"] {
     font-size: 1.8rem !important;
 }
 
-/* Sci-Fi Buttons & Links */
-.stButton > button, div.stDownloadButton > button {
+/* Sci-Fi Buttons */
+.stButton > button {
     background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%) !important;
     color: #ffffff !important;
     font-family: 'Orbitron', sans-serif !important;
@@ -83,12 +83,12 @@ div[data-testid="stMetricValue"] {
     width: 100%;
 }
 
-.stButton > button:hover, div.stDownloadButton > button:hover {
+.stButton > button:hover {
     box-shadow: 0 0 25px rgba(0, 242, 254, 0.8) !important;
     transform: scale(1.02);
 }
 
-/* External Link Styled Button */
+/* External Link Styled Donation Button */
 .donate-btn {
     display: inline-block;
     width: 100%;

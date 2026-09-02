@@ -3,11 +3,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-from streamlit_folium import st_folium
-import folium
 from simulation import simulate_crisis, compare_strategies, explain_ai
 
-# 1. PAGE CONFIGURATION (MUST BE FIRST)
+# 1. PAGE CONFIGURATION (MUST BE FIRST STREAMLIT COMMAND)
 st.set_page_config(
     page_title="Global Crisis AI Command",
     page_icon="🌍",
@@ -15,13 +13,18 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. LOAD EXTERNAL CSS
+# 2. LOAD EXTERNAL CSS WITH FALLBACK INJECTION
 def load_css(file_name):
     try:
         with open(file_name) as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     except FileNotFoundError:
-        st.warning("`style.css` not found. Please ensure it is present in your repository.")
+        st.markdown("""
+        <style>
+        .stApp { background-color: #0d1527; color: white; }
+        h1, h2, h3 { color: #00f2fe; }
+        </style>
+        """, unsafe_allow_html=True)
 
 load_css("style.css")
 
@@ -47,7 +50,7 @@ def get_severity_badge(severity):
     else:
         return f'<span class="badge-red">CRITICAL ({severity}/10)</span>'
 
-# Load Dataset Safely
+# Load Dataset safely
 try:
     data = pd.read_csv("data.csv")
 except FileNotFoundError:
@@ -60,9 +63,9 @@ except FileNotFoundError:
         "lon": [8.6753, 78.9629, 48.5164, -51.9253, 30.2176, 31.1656]
     })
 
-# SIDEBAR NAVIGATION & INTERACTIVE AI SEARCH
+# SIDEBAR NAVIGATION
 st.sidebar.markdown("## 🛸 GLOBAL COMMAND")
-st.sidebar.caption("System Status: **ONLINE** | Live Intelligence Feed")
+st.sidebar.caption("System Status: **ONLINE** | Live Data Feed")
 
 page = st.sidebar.radio(
     "Navigation Mode",
@@ -71,7 +74,7 @@ page = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 💬 Ask the Crisis Map")
-user_query = st.sidebar.text_input("Query crisis intelligence database:")
+user_query = st.sidebar.text_input("Query intelligence database:")
 if user_query:
     st.sidebar.info(f"🤖 **AI Analysis:** Scanning live records for '{user_query}'... High risks detected in multiple regional sectors.")
 
@@ -81,7 +84,7 @@ if page == "Global Command Atlas":
     st.title("🌐 GLOBAL CRISIS INTELLIGENCE ATLAS")
     st.caption("Real-time telemetry on global humanitarian risks, regional severity, and population displacement.")
 
-    # Dynamic Stat Counters
+    # Live Stat Counters
     total_crises = len(data)
     critical_count = len(data[data["crisis_severity"] >= 8])
     total_affected = data["affected_population"].sum()
@@ -93,38 +96,14 @@ if page == "Global Command Atlas":
 
     st.markdown("---")
 
-    # Interactive Folium Map
+    # Native Streamlit Interactive Map
     st.markdown("### 🗺️ Live Global Stress Map")
-    m = folium.Map(location=[15.0, 10.0], zoom_start=2, tiles="CartoDB dark_matter")
-
-    for _, row in data.iterrows():
-        color = "#ef4444" if row["crisis_severity"] >= 8 else "#f97316" if row["crisis_severity"] >= 5 else "#eab308"
-        
-        popup_html = f"""
-        <div style="font-family: sans-serif; width: 170px;">
-            <h4 style="margin:0; color: {color};">{row['country']}</h4>
-            <b>Severity:</b> {row['crisis_severity']}/10<br>
-            <b>Affected:</b> {row['affected_population']}M<br>
-            <b>Primary Risk:</b> {row.get('primary_risk', 'N/A')}
-        </div>
-        """
-        
-        folium.CircleMarker(
-            location=[row["lat"], row["lon"]],
-            radius=int(row["crisis_severity"]) * 2.2,
-            color=color,
-            fill=True,
-            fill_color=color,
-            fill_opacity=0.6,
-            popup=folium.Popup(popup_html, max_width=200),
-            tooltip=f"{row['country']} - Severity: {row['crisis_severity']}"
-        ).add_to(m)
-
-    st_folium(m, width="100%", height=450)
+    map_df = data[["lat", "lon"]].rename(columns={"lat": "latitude", "lon": "longitude"}).dropna()
+    st.map(map_df, zoom=1)
 
     st.markdown("---")
 
-    # Interactive Cards
+    # High Risk Cards
     st.markdown("### 🚨 Priority Risk Focus Zones")
     high_risk = data.sort_values(by="crisis_severity", ascending=False).head(4)
 
@@ -140,7 +119,7 @@ if page == "Global Command Atlas":
             </div>
             """, unsafe_allow_html=True)
             if st.button(f"View {row['country']} Report", key=f"btn_{row['country']}"):
-                st.info(f"📍 **{row['country']} Focus:** Primary risk factor identified as **{row.get('primary_risk', 'General Crisis')}**.")
+                st.info(f"📍 **{row['country']} Intelligence Briefing:** Primary threat factor identified as **{row.get('primary_risk', 'General Crisis')}**.")
 
     # Severity Distribution Chart
     st.markdown("### 📊 Regional Severity Distribution")
@@ -179,7 +158,7 @@ elif page == "Simulation Lab":
 
     if st.button("RUN PREDICTIVE SIMULATION"):
         with st.spinner("Processing AI Predictive Engine..."):
-            time.sleep(0.4)
+            time.sleep(0.3)
             risk, affected = simulate_crisis(population, food, water, energy, severity)
 
         st.markdown("### 📊 Forecasted Simulation Outcomes")
@@ -209,7 +188,7 @@ elif page == "Simulation Lab":
 # ---------------- 3. STRATEGY ENGINE ----------------
 elif page == "Strategy Engine":
 
-    st.title("⚖️ STRATEGY OPTIMIZATION ENGINE")
+    st.title("秤 STRATEGY OPTIMIZATION ENGINE")
     st.markdown("Evaluate intervention strategies to mitigate human casualty and displacement metrics.")
 
     c1, c2 = st.columns(2)
@@ -338,3 +317,4 @@ elif page == "Action Center (Donate & Volunteer)":
     with c2:
         if st.button("📢 Generate Social Advocacy Kit"):
             st.info("📋 **Advocacy Assets Ready:** Campaign graphics and pre-written press releases have been prepared.")
+

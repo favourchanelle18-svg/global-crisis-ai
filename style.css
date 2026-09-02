@@ -1,87 +1,111 @@
-/* Futuristic Command Center Styling */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;500;700&display=swap');
 
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;600&display=swap');
-
-/* Main Background & Fonts */
+/* Main Dark Command Center Background */
 .stApp {
-    background: radial-gradient(circle at top right, #0f172a 0%, #030712 100%) !important;
-    color: #f3f4f6 !important;
+    background: radial-gradient(circle at 50% -20%, #0d1527 0%, #040711 100%) !important;
+    color: #f1f5f9 !important;
     font-family: 'Inter', sans-serif !important;
 }
 
-/* Hide default Streamlit padding & header clutter */
 header[data-testid="stHeader"] {
     background: transparent !important;
 }
 
 .block-container {
-    padding-top: 2rem !important;
-    max-width: 1300px;
+    padding-top: 1.5rem !important;
+    max-width: 1350px;
 }
 
-/* Headings: Glowing Cyan Styling */
+/* Glowing Sci-Fi Headings */
 h1, h2, h3 {
     font-family: 'Orbitron', sans-serif !important;
     color: #00f2fe !important;
-    text-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
-    letter-spacing: 1px;
+    text-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+    letter-spacing: 1.2px;
+}
+
+h4, h5 {
+    font-family: 'Orbitron', sans-serif !important;
+    color: #38bdf8 !important;
 }
 
 /* Sidebar Glassmorphism */
 section[data-testid="stSidebar"] {
-    background: rgba(10, 16, 30, 0.85) !important;
-    border-right: 1px solid rgba(0, 242, 254, 0.2) !important;
-    backdrop-filter: blur(12px);
+    background: rgba(6, 11, 25, 0.9) !important;
+    border-right: 1px solid rgba(0, 242, 254, 0.25) !important;
+    backdrop-filter: blur(16px);
 }
 
 section[data-testid="stSidebar"] * {
     color: #e2e8f0 !important;
 }
 
-/* Metric Cards */
+/* Custom Glass Cards for Metrics */
 div[data-testid="stMetric"] {
-    background: rgba(15, 23, 42, 0.7);
+    background: rgba(15, 23, 42, 0.75);
     border: 1px solid rgba(0, 242, 254, 0.3);
     border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 242, 254, 0.05);
+    padding: 18px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(0, 242, 254, 0.05);
     transition: all 0.3s ease;
 }
 
 div[data-testid="stMetric"]:hover {
     border-color: #00f2fe;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(0, 242, 254, 0.25);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 242, 254, 0.3);
 }
 
 div[data-testid="stMetricLabel"] {
     color: #94a3b8 !important;
     font-size: 0.85rem !important;
     text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 div[data-testid="stMetricValue"] {
     color: #00f2fe !important;
     font-family: 'Orbitron', sans-serif;
-    font-size: 1.6rem !important;
+    font-size: 1.8rem !important;
 }
 
-/* Futuristic Glowing Buttons */
-.stButton > button {
+/* Sci-Fi Buttons & Links */
+.stButton > button, div.stDownloadButton > button {
     background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%) !important;
     color: #ffffff !important;
     font-family: 'Orbitron', sans-serif !important;
     font-weight: 700 !important;
     border: none !important;
     border-radius: 8px !important;
-    padding: 0.6rem 1.8rem !important;
+    padding: 0.6rem 1.4rem !important;
     box-shadow: 0 0 15px rgba(0, 198, 255, 0.4);
     transition: all 0.3s ease !important;
     width: 100%;
 }
 
-.stButton > button:hover {
+.stButton > button:hover, div.stDownloadButton > button:hover {
     box-shadow: 0 0 25px rgba(0, 242, 254, 0.8) !important;
+    transform: scale(1.02);
+}
+
+/* External Link Styled Button */
+.donate-btn {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white !important;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-decoration: none !important;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+    transition: all 0.3s ease;
+}
+
+.donate-btn:hover {
+    box-shadow: 0 0 22px rgba(16, 185, 129, 0.8);
     transform: scale(1.02);
 }
 
@@ -90,23 +114,15 @@ div[data-testid="stMetricValue"] {
     background-color: #00f2fe !important;
 }
 
-/* Info & Success Banners */
-div[data-testid="stAlert"] {
-    background: rgba(15, 23, 42, 0.9) !important;
-    border: 1px solid #00f2fe !important;
-    border-radius: 10px;
-    color: #e2e8f0 !important;
-    box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
-}
-
-/* Risk Indicator Badges */
+/* Severity Badges */
 .badge-yellow {
     background: rgba(234, 179, 8, 0.2);
     color: #facc15;
     border: 1px solid #facc15;
     padding: 4px 10px;
     border-radius: 6px;
-    font-weight: bold;
+    font-size: 0.8rem;
+    font-weight: 700;
 }
 
 .badge-orange {
@@ -115,14 +131,26 @@ div[data-testid="stAlert"] {
     border: 1px solid #fb923c;
     padding: 4px 10px;
     border-radius: 6px;
-    font-weight: bold;
+    font-size: 0.8rem;
+    font-weight: 700;
 }
 
 .badge-red {
-    background: rgba(239, 68, 68, 0.2);
+    background: rgba(239, 68, 68, 0.25);
     color: #f87171;
     border: 1px solid #f87171;
     padding: 4px 10px;
     border-radius: 6px;
-    font-weight: bold;
+    font-size: 0.8rem;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+
+.card-container {
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(0, 242, 254, 0.25);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
